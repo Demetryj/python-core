@@ -10,7 +10,8 @@ raw_numbers = [
     "(050)8889900",
     "38050-111-22-22",
     "38050 111 22 11   ",
-    "8050-343-25-52"
+    "8050-343-25-52",
+    '555-55-55'
 ]
 
 # phone number normalization function
@@ -40,7 +41,8 @@ def normalize_phone(phone_number :str)->str:
     if formated_number.startswith('0'):
         return "+38" + formated_number
     
-  
+    if not formated_number.startswith('+38'):
+        return "+38" + formated_number
     
 sanitized_numbers = [normalize_phone(num) for num in raw_numbers]
 

@@ -13,7 +13,7 @@ def get_numbers_ticket(min:int, max:int, quantity:int)->list[int]:
     If the parameters do not meet the specified constraints, the function returns an empty list. 
     """
     if (min <= 0 or max > 1000):
-        return []
+        return ['/']
     else:
         result = set() #
 
@@ -32,5 +32,5 @@ print(get_numbers_ticket(10, 1000, 5))
 print(get_numbers_ticket(0, 1000, 12))
 print(get_numbers_ticket(0, 1001, 5))
 print(get_numbers_ticket(10, 1005, 17))
-print(get_numbers_ticket(55, 125, 7))
+print(get_numbers_ticket(-55, 125, 7))
 
