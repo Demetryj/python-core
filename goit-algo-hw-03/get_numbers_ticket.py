@@ -12,18 +12,15 @@ def get_numbers_ticket(min:int, max:int, quantity:int)->list[int]:
     The function returns a list of randomly selected, sorted numbers. The numbers in the set must not be repeated. 
     If the parameters do not meet the specified constraints, the function returns an empty list. 
     """
-    if (min <= 0 or max > 1000):
+   
+    if min < 1 or max > 1000 or min >= max:
         return ['/']
-    else:
-        result = set() #
+    available = max - min + 1
 
-        while len(result) < quantity:
-           random_value = random.randint(min, max)
-           result.add(random_value)
-
-        sorted_result_list = sorted(list(result))
-
-        return sorted_result_list
+    if quantity <= 0 or quantity > available:
+        return ['/']
+    
+    return sorted(random.sample(range(min, max + 1), quantity))
 
 
 
@@ -33,4 +30,6 @@ print(get_numbers_ticket(0, 1000, 12))
 print(get_numbers_ticket(0, 1001, 5))
 print(get_numbers_ticket(10, 1005, 17))
 print(get_numbers_ticket(-55, 125, 7))
+print(get_numbers_ticket(10, 4, 5))
+print(get_numbers_ticket(10, 14, 6 ))
 
