@@ -50,6 +50,6 @@ def total_salary(path: str) -> tuple | list:
     total_amount = 0
               
     for item in salary_list:
-        total_amount += float(item)
+        total_amount += int(item)
 
-    return (total_amount, total_amount / len(salary_list))
+    return (total_amount, (total_amount // len(salary_list)))
