@@ -1,4 +1,6 @@
-from collections import UserDict 
+from collections import UserDict
+from datetime import datetime, timedelta
+from colorama import  Fore
 
 class FormatPhoneNumber(Exception):
     pass
@@ -18,14 +20,24 @@ class Name(Field):
 
 class Phone(Field):
     """Class for storing a phone number. Validates format (10 digits)."""
-    def __init__(self, value):
+    def __init__(self, value:str):
         super().__init__(value)
         if len(value) !=10:
-            raise FormatPhoneNumber("Phone number must consist of 10 digits")
+            raise FormatPhoneNumber(Fore.RED + "Phone number must consist of 10 digits")
         if not value.isdigit():
-                raise FormatPhoneNumber("The phone number must contain only numbers.")
+                raise FormatPhoneNumber(Fore.RED + "The phone number must contain only numbers.")
                 
     
+
+class Birthday(Field):
+    def __init__(self, birthday_date:str):
+        try:
+           income_date = datetime.strptime(birthday_date, '%d.%m.%Y') 
+        except ValueError:
+            raise Exception(Fore.RED + "Invalid date format. Use DD.MM.YYYY")
+        else:
+            super().__init__(income_date)
+
 class Record:
     """
     Class for storing contact info, including a name and a list of phone numbers.
@@ -33,10 +45,14 @@ class Record:
     Remove phone numbers.
     Edit phone numbers.
     Search for a phone number.
+    Add birthday.
+    Show the contact's birthday.
+    Show a list of users to be greeted by day of the week next week.
     """
     def __init__(self, name:str):
         self.name = Name(name)
         self.phones = []
+        self.birthday = None
         
     def add_phone(self, phone_number:str):
         self.phones.append(Phone(phone_number))
@@ -47,14 +63,17 @@ class Record:
             raise ValueError("Phone number not found.")
         self.phones.remove(phone)
         
-    def edit_phone(self, old_phone_number, new_phone_number):
+    def edit_phone(self, old_phone_number:str, new_phone_number:str):
         phone = self.find_phone(old_phone_number)
         if not phone:
-            raise ValueError("Phone number not found.")
+            raise Exception("Phone number not found.")
         self.phones[self.phones.index(phone)] = Phone(new_phone_number)
         
     def find_phone(self, phone_number:str):
         return next((phone for phone in self.phones if phone.value == phone_number), None)
+    
+    def add_birthday(self, birhday_date:str):
+        self.birthday = Birthday(birhday_date)
     
     def __str__(self):
         phones = "; ".join(p.value for p in self.phones)
@@ -78,38 +97,42 @@ class AddressBook(UserDict):
         contact = self.data.get(contact_name)
         if contact:
             self.data.pop(contact_name)
+    
+    def get_upcoming_birthdays(self):
+        today = datetime.now().date()
+        end_date = today + timedelta(days=7)
+        upcoming_birthdays = []
+
+        for record in self.data.values():
+            if record.birthday is None:
+                continue
+
+            birthday_date = record.birthday.value.date()
+            birthday_this_year = birthday_date.replace(year=today.year)
+
+            if birthday_this_year < today:
+                birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+
+            days_until_birthday = (birthday_this_year - today).days
+            if 0 <= days_until_birthday <= 7:
+                greeting_date = birthday_this_year
+                if greeting_date.weekday() >= 5:
+                    greeting_date += timedelta(days=7 - greeting_date.weekday())
+
+                if greeting_date > end_date:
+                    continue
+
+                upcoming_birthdays.append(
+                    {
+                        "name": record.name.value,
+                        "birthday": greeting_date.strftime("%d.%m.%Y"),
+                    }
+                )
+
+        return upcoming_birthdays
             
     def __str__(self):
         lines = []
         for record in self.data.values():
             lines.append(str(record))
         return "\n".join(lines)
-
-
-if __name__ == "__main__":
-    book = AddressBook()
-   
-    john_record = Record("John")
-    john_record.add_phone("1234567890")
-    john_record.add_phone("5555555555")
-    
-    book.add_record(john_record)
-    
-    jane_record = Record("Jane")
-    jane_record.add_phone("9876543210")
-    
-    book.add_record(jane_record)
-    
-    print(book)
-    
-    john = book.find("John")
-    john.edit_phone("1234567890", "1112223333")
-    
-    print(john)  
-
-   
-    found_phone = john.find_phone("5555555555")
-    print(f"{john.name}: {found_phone}")  
-
-   
-    book.delete("Jane")
