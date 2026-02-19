@@ -28,6 +28,8 @@ def input_error(func) -> Callable:
             return f"{Fore.RED}Such contact does not exist."
         except IndexError:
             return f"{Fore.RED}Enter user name please."
+        except AttributeError:
+            return f"{Fore.RED}This entry is missing."
         except Exception as e:
             return(f"{Fore.RED}{e}")
     return inner
@@ -52,10 +54,7 @@ def change_contact(args: list[str], book: AddressBook) -> str:
     """Updates an existing contact's phone."""
     name, old_phone_number, new_phone_number, *_ = args
     record:Record = book.find(name)
-       
-    if record is None:
-        raise KeyError()
-    
+               
     record.edit_phone(old_phone_number, new_phone_number)    
     return f"{Fore.GREEN}Contact updated."
    
@@ -65,10 +64,7 @@ def show_phone(args: list[str], book: AddressBook) -> str:
     """Returns a phone number by name."""
     name = args[0].strip().lower()
     record:Record = book.find(name)
-       
-    if record is None:
-        raise KeyError()
-    
+              
     phones = "; ".join(p.value for p in record.phones)
     return f"{Fore.GREEN}{phones}"
       
@@ -91,9 +87,7 @@ def add_birthday(args:list[str], book:AddressBook) -> str:
     
     record:Record = book.find(name)
        
-    if record is None:
-        raise KeyError()
-    
+        
     if record.birthday:
         message = "Birthday updated."
     else:
@@ -111,14 +105,11 @@ def show_birthday(args:list[str], book:AddressBook) -> str:
          raise Exception("Please enter name.")
     
     record:Record = book.find(name)
-       
-    if record is None:
-        raise KeyError()
-    
+      
     birthday = record.birthday.value
     if birthday is None:
         return f"{Fore.RED}The contact does not have a date of birth set."
-    return f"{Fore.GREEN}{datetime.strftime(birthday, '%d.%m.%Y')}"
+    return f"{Fore.GREEN}{birthday}"
 
 @input_error
 def birthdays(book:AddressBook) -> str:
